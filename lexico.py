@@ -3,6 +3,10 @@ from ttoken import TOKEN
 '''
 DÚVIDAS
 - Em que momento o método getToken é chamado?
+- As strings em Pascal começam apenas com aspas simples?
+- Atribuição de variável e de constante é diferente para variáveis e constantes? No nosso caso,a  gente criou so um token pra atribuicao, seria para := ?  https://pt.wikibooks.org/wiki/Pascal/Comandos_de_Atribui%C3%A7%C3%A3o
+- Só pra confirmar: os operadores de soma e subtracao terão o mesmo token. Os operadadores de divisao, multiplicacao, e relacionais tambem
+- Pra que serve o token de erro que criamos, e como eu sei quando usá-lo?
 '''
 
 class Lexico:
@@ -49,6 +53,7 @@ class Lexico:
         msg = TOKEN.msg(token)
         print(f'(tk={msg} lex="{lexema}" lin={linha} col={coluna})')
 
+    #esse método é o coração do lexico, é onde implementamos o autômato que reconhece os lexemas (vai formando os lexemas caractere a caractere, e pega o token desse lexema)
     def getToken(self):
 
         estado = 1
@@ -67,9 +72,10 @@ class Lexico:
                     #descarta linhas brancas e espaços em branco
                     while simbolo in [' ', '\t', '\n']:
                         simbolo = self.getchar()
+
+            # vai para o estado que cuida das divisoes com a barra
             else:
                 pass
-                #vai para o estado que cuida das expressões
 
         #aqui vai começar a formar um lexema e classificá-lo em token
         linha = self.linha
@@ -77,18 +83,114 @@ class Lexico:
 
         # quando acha um lexema, interrompe o while e retorna o token, lexema, linha e coluna para quem chamou
         while(True):
+            # início do autômato
             if estado == 1:
-                #início do autômato
-                if simbolo.isalpha():
+
+                #os lexemas que possuem apenas um caracetere sao faceis de tratar, basta verificar se é o simbolo em questão, e retornar ele, o token dele, a linha e a coluna que ele está
+                if simbolo == "(":
+                    return (TOKEN.abrePar,'(',linha,coluna)
+                elif simbolo == ")":
+                    return (TOKEN.fechaPar,')',linha,coluna)
+                elif simbolo == ";":
+                    return (TOKEN.ptoVirgula,';',linha,coluna)
+                elif simbolo == ",":
+                    return (TOKEN.virgula,',',linha,coluna)
+                elif simbolo == "[":
+                    return (TOKEN.abreCol,'[',linha,coluna)
+                elif simbolo == "]":
+                    return (TOKEN.fechaCol,']',linha,coluna)
+                elif simbolo == "+":
+                    return (TOKEN.addop,'+',linha,coluna)
+                elif simbolo == "-":
+                    return (TOKEN.addop,'-',linha,coluna)
+                elif simbolo == "*":
+                    return (TOKEN.mulop,'*',linha,coluna)
+                elif simbolo == "/":
+                    return (TOKEN.mulop,'/',linha,coluna)
+
+                #alguns lexemas mais complexos (quando vier uma palavra reservada por exemplo, preciso saber até onde ler pra pegar seu token)
+                elif simbolo.isalpha():
                     estado = 2 # identificadores e palavras reservadas
                 elif simbolo.isdigit():
                     estado = 3 # números (reais e inteiros)
                 elif simbolo == '\'':
                     estado = 4 # strings
-                elif simbolo == '(':
-                    return (TOKEN.abrePar,'(',linha,coluna)
+
+                # outros lexemas precisam de tratamento. [Ex: Ao ler um <, ele pode ser <, <=, ou <> (diferente)]
+                elif simbolo == ".":
+                    estado = 5  # . ou ..
+                elif simbolo == ":":
+                    estado = 6  # : ou :=
+                elif simbolo == ">":
+                    estado = 7  # >, ou >=
+                elif simbolo == "<":
+                    estado = 8  # <, <= ou <>
+                elif simbolo == "=":
+                    estado = 9  #precisa vir outro = para formar ==
+
+
+
+            elif estado == 2: #identificadores e palavras reservadas (sao sequencias de letras ou letras intercaladas com numeros: while, nome, idade1)
+                if simbolo.isalnum(): #permanece no estado 2 enquanto estiver lendo uma sequência alfanumerica
+                    estado = 2
+                else: #quando o identificador ou palavra reservada acabar
+                    self.ungetchar(simbolo)  #deslê o último simbolo lido (que não faz parte do identificador ou palavra reservada)
+                    token = TOKEN.reservada(lexema) #pega o token do lexema, ou ele é reserva ou é um identificador (Dentro de TOKEN já tem essa verificação)
+                    return (token,lexema,linha,coluna)
+
+
+            elif estado == 3: # números (reais e inteiros)
+                pass
+
+
+            elif estado == 4: # strings
+                pass
+
+
+            elif estado == 5: #. ou ..
+                if simbolo == ".":
+                    return (TOKEN.ptopto,'..',linha,coluna)
+                else:
+                    self.ungetchar(simbolo)
+                    return (TOKEN.pto,'.',linha,coluna)
+
+
+            elif estado == 6: # : ou :=
+                if simbolo == "=":
+                    return (TOKEN.assignop,':=',linha,coluna)
+                else:
+                    self.ungetchar(simbolo)
+                    return (TOKEN.doisPtos,':',linha,coluna)
+
+
+            elif estado == 7: # >, ou >=
+                if simbolo == "=":
+                    return (TOKEN.relop,'>=',linha,coluna)
+                else:
+                    self.ungetchar(simbolo)
+                    return (TOKEN.relop,'>',linha,coluna)
+
+
+            elif estado == 8: # <, <= ou <>
+                if simbolo == "=":
+                    return (TOKEN.relop,'<=',linha,coluna)
+                elif simbolo == ">":
+                    return (TOKEN.relop,'<>',linha,coluna)
+                else:
+                    self.ungetchar(simbolo)
+                    return (TOKEN.relop,'<',linha,coluna)
+
+            elif estado == 9: #precisa vir outro = para formar ==, se não vier nada depois do = , ai é um erro, pois a linguagem não tem o lexema = como válido
+                if simbolo == "=":
+                    return (TOKEN.relop,"==",linha,coluna)
+                else:
+                    self.ungetchar(simbolo)
+                    return (TOKEN.erro,"=",linha,coluna)  # se encontrar um = sozinho, é um erro, ele já retorna dizendo isso
+
+
 
             lexema = lexema + simbolo
             simbolo = self.getchar()
+
 
 

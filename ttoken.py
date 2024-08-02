@@ -31,7 +31,7 @@ class TOKEN(IntEnum):
     ELSE = 28
     relop = 29 # operador relacional (>, <, >=, <=, ==, <>)
     addop = 30 # soma e subtração (+ e -)
-    mulop = 31 # multiplicação, divisão e mod
+    mulop = 31 # multiplicação (*), divisão (/) e mod
     numReal = 32
     numInteger = 33
     NOT = 34
@@ -61,7 +61,7 @@ class TOKEN(IntEnum):
             20:'procedure',
             21:'begin',
             22:'end',
-            23:'=',
+            23:':=',
             24:'while',
             25:'do',
             26:'if',
