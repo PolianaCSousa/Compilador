@@ -1,0 +1,26 @@
+  '''while simbolo in ['/', ' ', '\t', '\n']:
+            if simbolo == '/':
+                simbolo = self.getchar()
+                while simbolo != '\n':
+                    simbolo = self.getchar()
+            while simbolo in [' ', '\t', '\n']:
+                simbolo = self.getchar()
+
+
+        #definimos comentários como // , então quando vem uma / é preciso verificar se é um comentário ou não
+        if simbolo == '/':
+            estado = 0
+
+        #quando acha um lexema, interrompe o while e retorna o token, lexema, linha e coluna para quem chamou
+        while(True):
+
+            if estado == 0:
+                #trata comentários
+                while simbolo in ['/', ' ', '\t', '\n']:
+                    if simbolo == '/':
+                        simbolo = self.getchar()
+                        while simbolo != '\n':
+                            simbolo = self.getchar()
+                    while simbolo in [' ','\t','\n']:
+                        simbolo = self.getchar()
+        '''

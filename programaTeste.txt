@@ -1,0 +1,22 @@
+program TESTE;
+var
+    a, b, soma, divisao: real;
+begin
+    writeln('entre com a: ');
+    readln(a);
+    writeln('entre com b: ');
+    readln(b);
+
+    soma := a + b * (2 + 3 / 5.4);
+
+    if soma >= 0 then
+        a := 0
+    else
+    begin
+        b := 3;
+        a := b + 5;
+    end;
+
+    divisao := a / b;
+    writeln('soma = ', soma);
+end.
