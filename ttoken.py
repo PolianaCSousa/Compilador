@@ -29,12 +29,17 @@ class TOKEN(IntEnum):
     IF = 26
     THEN = 27
     ELSE = 28
-    relop = 29 # operador relacional (>, <, >=, <=, ==, <>)
+    relop = 29 # operador relacional (>, <, >=, <=, =, <>)
     addop = 30 # soma e subtração (+ e -)
     mulop = 31 # multiplicação (*), divisão (/) e mod
     numReal = 32
     numInteger = 33
     NOT = 34
+    string = 35
+    WRITELN = 36
+    WRITE = 37
+    READLN = 38
+    READ = 39
 
     @classmethod
     def msg(cls, token):
@@ -72,7 +77,12 @@ class TOKEN(IntEnum):
             31:'operador * , /, div, mod',
             32:'número real',
             33:'número inteiro',
-            34:'not'
+            34:'not',
+            35:'string',
+            36:'writeln',
+            37:'write',
+            38:'readln',
+            39:'read'
         }
         return nomes[token]
 
@@ -96,7 +106,11 @@ class TOKEN(IntEnum):
             'else': TOKEN.ELSE,
             'div': TOKEN.mulop,
             'mod': TOKEN.mulop,
-            'not': TOKEN.NOT
+            'not': TOKEN.NOT,
+            'writeln': TOKEN.WRITELN,
+            'write': TOKEN.WRITE,
+            'readln': TOKEN.READLN,
+            'read':TOKEN.READ,
         }
         if lexema in reservadas:
             return reservadas[lexema]

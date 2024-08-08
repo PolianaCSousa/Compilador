@@ -1,13 +1,14 @@
+//comentario teste
 program TESTE;
 var
     a, b, soma, divisao: real;
 begin
-    writeln('entre com a: ');
+    writeln("entre com a: ");
     readln(a);
-    writeln('entre com b: ');
+    writeln("entre com b: ");
     readln(b);
 
-    soma := a + b * (2 + 3 / 5.4);
+    soma := a + b * (2 + 5.4);
 
     if soma >= 0 then
         a := 0
@@ -18,5 +19,5 @@ begin
     end;
 
     divisao := a / b;
-    writeln('soma = ', soma);
+    writeln("soma =" , soma);
 end.

@@ -24,3 +24,77 @@
                     while simbolo in [' ','\t','\n']:
                         simbolo = self.getchar()
         '''
+
+
+//comentario teste
+program TESTE;
+var
+    a, b, soma, divisao: real;
+begin
+    writeln('entre com a: ');
+    readln(a);
+    writeln('entre com b: ');
+    readln(b);
+
+    soma := a + b * (2 + 5.4);
+
+    if soma >= 0 then
+        a := 0
+    else
+    begin
+        b := 3;
+        a := b + 5;
+    end;
+
+    divisao := a / b;
+    writeln('soma = ', soma);
+end.
+
+
+
+
+---------------------
+
+
+        while simbolo in ["/", " ", "\t", "\n"]:
+            # descarta comentários (que iniciam com // até o fim da linha)
+            if simbolo == "/":
+                #lexema = lexema + simbolo
+                simbolo = self.getchar()
+                if simbolo == "/":
+                    simbolo = self.getchar()
+
+                    while simbolo != "\n":
+                        simbolo = self.getchar()
+                else:
+                    # Se não for um comentário, o caractere '/' não deve ser descartado.
+                    self.ungetchar(simbolo)  # retorna o caractere
+                    simbolo = "/"
+                    break
+            # descarta linhas brancas e espaços
+            while simbolo in [" ", "\t", "\n"]:
+                simbolo = self.getchar()
+
+
+
+---------------------
+
+
+  '''
+        # descarta comentários (os comentários iniciam com //
+        if simbolo == '/':
+            simbolo = self.getchar()
+            if simbolo == '/':
+                while simbolo in ['/', ' ', '\t', '\n']:
+                    #descarta tudo o que vier depois de // até encontrar um \n
+                    simbolo = self.getchar()
+                    while simbolo != '\n':
+                        simbolo = self.getchar()
+                    #descarta linhas brancas e espaços em branco
+                    while simbolo in [' ', '\t', '\n']:
+                        simbolo = self.getchar()
+
+            # vai para o estado que cuida das divisoes com a barra
+            else:
+                pass
+        '''
