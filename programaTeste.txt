@@ -1,6 +1,7 @@
 //comentario teste
 program TESTE;
 var
+    numeros: array[1..10] of integer;
     a, b, soma, divisao: real;
 begin
     writeln("entre com a: ");
