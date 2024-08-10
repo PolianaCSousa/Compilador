@@ -1,7 +1,9 @@
 from lexico import TOKEN, Lexico
+from semantico import Semantico
 class Sintatico:
     def __init__(self, lexico):
         self.lexico = lexico
+        self.semantico = Semantico(self) #estou passando o sintatico pro semantico
 
     def traduz(self):
         self.tokenLido = self.lexico.getToken() # o sintatico pede para o lexico token por token
@@ -31,12 +33,12 @@ class Sintatico:
 
     #-------------------------------- Implementando a gramática --------------------------------
 
-    #<program> -> program id ( <identifier_list> ) ; <declarations> <subprogram_declarations> <compound_statement> .
+    #<program> -> program id ( ) ; <declarations> <subprogram_declarations> <compound_statement> .
     def program(self):
         self.consome(TOKEN.PROGRAM)
         self.consome(TOKEN.id)
         self.consome(TOKEN.abrePar)
-        self.identifier_list()
+        #na prática nós não vamos receber parâmetros do programa, portanto, não precisa implementar o identifier_list dentro do ()
         self.consome(TOKEN.fechaPar)
         self.consome(TOKEN.ptoVirgula)
         self.declarations()
@@ -46,25 +48,28 @@ class Sintatico:
 
     #<identifier_list> -> id <resto_identifier_list>
     def identifier_list(self):
+        nome = self.tokenLido[1]
         self.consome(TOKEN.id)
-        self.resto_identifier_list()
+        lista = [nome]
+        lista2 = self.resto_identifier_list()
+        return lista + lista2
 
     #<resto_identifier_list> ->, id < resto_identifier_list > | LAMBDA
     def resto_identifier_list(self):
         if self.tokenLido[0] == TOKEN.virgula:
             self.consome(TOKEN.virgula)
-            self.consome(TOKEN.id)
-            self.resto_identifier_list()
+            return self.identifier_list()
         else:
-            pass
+            return []
     #<declarations> -> var <identifier_list> : <type> ; <declarations> | LAMBDA
     def declarations(self):
         if self.tokenLido[0] == TOKEN.VAR:
             self.consome(TOKEN.VAR)
-            self.identifier_list()
+            nomes = self.identifier_list()
             self.consome(TOKEN.doisPtos)
-            self.type()
+            tipo = self.type()
             self.consome(TOKEN.ptoVirgula)
+            self.semantico.declara(nomes,tipo)
             self.declarations()
         else:
             pass
@@ -79,16 +84,19 @@ class Sintatico:
             self.consome(TOKEN.numInteger)
             self.consome(TOKEN.fechaCol)
             self.consome(TOKEN.OF)
-            self.standard_type()
+            tipo = self.standard_type()
+            return (TOKEN.ARRAY,tipo)
         else:
-            self.standard_type()
+            return self.standard_type()
 
     #<standard_type> -> integer | real
     def standard_type(self): #CONFIRMAR
         if self.tokenLido[0] == TOKEN.numInteger:
             self.consome(TOKEN.numInteger)
+            return TOKEN.INTEGER
         else:
             self.consome(TOKEN.numReal)
+            return TOKEN.REAL
 
     #SUBPROGRAM DECLARION?
     #<subprogram_declarations> -> <subprogram_declarion> ; <subprogram_declarations> | LAMBDA
@@ -110,14 +118,18 @@ class Sintatico:
     def subprogram_head(self):
         if self.tokenLido[0] == TOKEN.FUNCTION:
             self.consome(TOKEN.FUNCTION)
+            nomeFuncao = self.tokenLido[1]
             self.consome(TOKEN.id)
+            self.semantico.declara(nomeFuncao,TOKEN.FUNCTION)
             self.arguments()
             self.consome(TOKEN.doisPtos)
             self.standard_type()
             self.consome(TOKEN.ptoVirgula)
         else:
             self.consome(TOKEN.PROCEDURE)
+            nomeProcedimento = self.tokenLido[1]
             self.consome(TOKEN.id)
+            self.semantico.declara(nomeProcedimento,TOKEN.PROCEDURE)
             self.arguments()
             self.consome(TOKEN.ptoVirgula)
 
@@ -154,7 +166,6 @@ class Sintatico:
         self.optional_statements()
         self.consome(TOKEN.END)
 
-    #CONFIRMAR SE ESTÁ CERTO OLHANDO O PREDICT
     #< optional_statements > -> < statement_list > | LAMBDA
     def optional_statements(self):
         if self.tokenLido[0] == TOKEN.END:
@@ -164,23 +175,60 @@ class Sintatico:
 
     #<statement_list> -> <statement> <resto_statement_list>
     def statement_list(self):
-        pass
+        self.statement()
+        self.resto_statement_list()
 
     #< resto_statement_list > ->; < statement > < resto_statement_list > | LAMBDA
     def resto_statement_list(self):
         pass
 
-    #<statement> -> <variable> assignop <expression> |<procedure_statement> | <compound_statement> | <if_statement> | while <expression> do <statement> | <inputOutput>
+    #<statement> -> <variable> assignop <expression> | <procedure_statement> | <compound_statement> | <if_statement> | while <expression> do <statement> | <inputOutput>
     def statement(self):
-        pass
+        if self.tokenLido[0] == TOKEN.id:
+            nome = self.tokenLido[1]
+            if self.semantico.existe_id(nome):
+                tipo = self.semantico.consulta_tipo_id(nome)
+                if tipo in [TOKEN.INTEGER,TOKEN.REAL]:
+                    self.variable()
+                    self.consome(TOKEN.assignop)
+                    self.expression()
+                else:
+                    self.procedure_statement()
+            else:
+                msg = 'Idenficador ' + nome + ' não declarado.'
+                self.semantico.erroSemantico(msg)
+
+        elif self.tokenLido[0] == TOKEN.BEGIN:
+            self.compound_statement()
+
+        elif self.tokenLido[0] == TOKEN.IF:
+            self.if_statement()
+
+        elif self.tokenLido[0] == TOKEN.WHILE:
+            # while <expression> do <statement>
+            self.consome(TOKEN.WHILE)
+            self.expression()
+            self.consome(TOKEN.DO)
+            self.statement()
+
+        elif self.tokenLido[0] in [TOKEN.READ, TOKEN.READLN, TOKEN.WRITE, TOKEN.WRITELN]:
+            self.inputOutput()
 
     #<if_statement> -> if <expression> then <statement> <opc_else>
     def if_statement(self):
-        pass
+        self.consome(TOKEN.IF)
+        self.expression()
+        self.consome(TOKEN.THEN)
+        self.statement()
+        self.opc_else()
 
     #<opc_else> -> else <statement> | LAMBDA
     def opc_else(self):
-        pass
+        if self.tokenLido[0] == TOKEN.ELSE:
+            self.consome(TOKEN.ELSE)
+            self.statement()
+        else:
+            pass
 
     #<variable> -> id <opc_index>
     def variable(self):
@@ -188,7 +236,12 @@ class Sintatico:
 
     #<opc_index> -> [ <expression> ] | LAMBDA
     def opc_index(self):
-        pass
+        if self.tokenLido[0] == TOKEN.assignop:
+            pass
+        else:
+            self.consome(TOKEN.abreCol)
+            self.expression()
+            self.consome(TOKEN.fechaCol)
 
     #<procedure_statement> -> id <opc_parameters>
     def procedure_statement(self):
@@ -196,7 +249,12 @@ class Sintatico:
 
     #<opc_parameters> -> ( <expression_list> ) | LAMBDA
     def opc_parameters(self):
-        pass
+        if self.tokenLido == TOKEN.abrePar:
+            self.consome(TOKEN.abrePar)
+            self.expression_list()
+            self.consome(TOKEN.fechaPar)
+        else:
+            pass
 
     #<expression_list> -> <expression> <resto_expression_list>
     def expression_list(self):
@@ -242,7 +300,7 @@ class Sintatico:
     def resto_id(self):
         pass
 
-    #<inputOutput> -> writeln(<outputs>) ; | write(<outputs>) ; | read(id) ; | readln(id) ;
+    #<inputOutput> -> writeln(<outputs>) | write(<outputs>) | read(id) | readln(id)
     def inputOutput(self):
         pass
 

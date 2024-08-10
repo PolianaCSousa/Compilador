@@ -171,6 +171,12 @@ class Lexico:
             elif estado == 31:
                 if simbolo.isdigit(): #se achou número depois do ponto, vai para o estado 32
                     estado = 32
+                elif simbolo == '.': #leu o .. do vetor. entao precisamos devolver o número que foi lido, e dar um unget pra desler esse segundo ponto e o primeiro ponto
+                    self.ungetchar(simbolo)
+                    self.ungetchar(simbolo)
+                    #lexeama = 1.
+                    lexema = lexema[:-1] # lexema = lexema[:-1] também dá certo
+                    return (TOKEN.numInteger, lexema, linha, coluna)
                 else:
                     self.ungetchar(simbolo)
                     return (TOKEN.erro,lexema,linha,coluna)
