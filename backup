@@ -98,3 +98,48 @@ end.
             else:
                 pass
         '''
+
+
+'''
+
+program TESTE;
+var
+    numeros: array[1..10] of integer;
+    a, b, soma, divisao: real;
+
+procedure ExibirMensagem(msg: string);
+begin
+    writeln(msg);
+end;
+
+function Multiplicar(x, y: real): real;
+begin
+    Multiplicar := x * y;
+end;
+
+begin
+    writeln('Entre com a: ');
+    readln(a);
+    writeln('Entre com b: ');
+    readln(b);
+
+    soma := Multiplicar(a, b) + (2 + 5.4);
+
+    if soma >= 0 then
+        a := 0
+    else
+    begin
+        b := 3;
+        a := b + 5;
+    end;
+
+    divisao := a / b;
+    writeln('soma = ', soma);
+
+    ExibirMensagem('Teste do procedimento ExibirMensagem');
+end.
+
+
+
+
+'''

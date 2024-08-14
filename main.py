@@ -4,7 +4,7 @@
 # Aluna: Poliana Cristina de Sousa
 #---------------------------------------------------
 from lexico import Lexico
-from sintatico import Sintatico
+#from sintatico import Sintatico
 
 class Tradutor:
 

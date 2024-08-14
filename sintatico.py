@@ -1,5 +1,13 @@
 from lexico import TOKEN, Lexico
 from semantico import Semantico
+
+'''
+    O problema é a intercessão no predict do statement. E o statement vem depois das declarations.
+    As declarations são importantes, porque é nelas que temos as variaveis e seus tipos. Ai, em declarations
+    a gente usa o semantico pra salvar a variavel e o tipo delas na tabela de simbolos, e ai, quando chega 
+    no statement, a gente vai na tabela de simbolos e verifica o tipo do identificador.
+'''
+
 class Sintatico:
     def __init__(self, lexico):
         self.lexico = lexico
@@ -8,7 +16,7 @@ class Sintatico:
     def traduz(self):
         self.tokenLido = self.lexico.getToken() # o sintatico pede para o lexico token por token
         try: #ao receber o token ele vai na gramática e verifica se está de acordo com a gramática
-            self.p() #esse é o método de ponto de partida que faz ele entrar na gramátic
+            self.program() #esse é o método de ponto de partida que faz ele entrar na gramátic
             print('Traduzido com sucesso.')
         except:
             pass
@@ -249,7 +257,7 @@ class Sintatico:
 
     #<opc_parameters> -> ( <expression_list> ) | LAMBDA
     def opc_parameters(self):
-        if self.tokenLido == TOKEN.abrePar:
+        if self.tokenLido[0] == TOKEN.abrePar:
             self.consome(TOKEN.abrePar)
             self.expression_list()
             self.consome(TOKEN.fechaPar)
@@ -258,60 +266,133 @@ class Sintatico:
 
     #<expression_list> -> <expression> <resto_expression_list>
     def expression_list(self):
-        pass
+        self.expression()
+        self.resto_expression_list()
 
     #<resto_expression_list> -> , <expression> <resto_expression_list> | LAMBDA
     def resto_expression_list(self):
-        pass
+        if self.tokenLido[0] == TOKEN.virgula:
+            self.consome(TOKEN.virgula)
+            self.expression()
+            self.resto_expression_list()
+        else:
+            pass
 
     #<expression> -> <simple_expression> <resto_expression>
     def expression(self):
-        pass
+        self.simple_expression()
+        self.resto_expression()
 
     #<resto_expression> -> relop <simple_expression> <resto_expression> | LAMBDA
     def resto_expression(self):
-        pass
+        if self.tokenLido[0] == TOKEN.relop:
+            self.consome(TOKEN.relop)
+            self.simple_expression()
+            self.resto_expression()
+        else:
+            pass
 
     #<simple_expression> -> <term> <resto_simple_expression>
     def simple_expression(self):
-        pass
+        self.term()
+        self.resto_simple_expression()
 
     #<resto_simple_expression> -> addop <term> <resto_simple_expression> | LAMBDA
     def resto_simple_expression(self):
-        pass
+        if self.tokenLido[0] == TOKEN.addop:
+            self.consome(TOKEN.addop)
+            self.term()
+            self.resto_simple_expression()
+        else:
+            pass
 
     #<term> -> <uno> <resto_term>
     def term(self):
-        pass
+        self.uno()
+        self.resto_term()
 
     #<resto_term> -> mulop <uno> <resto_term> | LAMBDA
     def resto_term(self):
-        pass
+        if self.tokenLido[0] == TOKEN.mulop:
+            self.consome(TOKEN.mulop)
+            self.uno()
+            self.resto_term()
+        else:
+            pass
 
     #<uno> -> <factor> | addop <factor>
     def uno(self):
-        pass
+        if self.tokenLido[0] == TOKEN.addop:
+            self.consome(TOKEN.addop)
+            self.factor()
+        else:
+            self.factor()
 
+    #PARA O NUM COLOCA UM PRA INTEIRO E OUTRO PRA REAL?
     #<factor> -> id <resto_id> | num | ( <expression> ) | not <factor>
     def factor(self):
         pass
 
     #<resto_id> -> ( <expression_list> ) | LAMBDA
     def resto_id(self):
-        pass
+        if self.tokenLido[0] == TOKEN.abrePar:
+            self.consome(TOKEN.abrePar)
+            self.expression_list()
+            self.consome(TOKEN.fechaPar)
+        else:
+            pass
 
-    #<inputOutput> -> writeln(<outputs>) | write(<outputs>) | read(id) | readln(id)
+    #CONFIRMAR - correto
+    #<inputOutput> -> writeln( <outputs> ) | write( <outputs> ) | read( id ) | readln( id )
     def inputOutput(self):
-        pass
+        if self.tokenLido[0] == TOKEN.WRITELN:
+            self.consome(TOKEN.WRITELN)
+            self.consome(TOKEN.abrePar)
+            self.outputs()
+            self.consome(TOKEN.fechaPar)
+
+        elif self.tokenLido[0] == TOKEN.WRITE:
+            self.consome(TOKEN.WRITE)
+            self.consome(TOKEN.abrePar)
+            self.outputs()
+            self.consome(TOKEN.fechaPar)
+
+        elif self.tokenLido[0] == TOKEN.READ:
+            self.consome(TOKEN.READ)
+            self.consome(TOKEN.abrePar)
+            self.consome(TOKEN.id)
+            self.consome(TOKEN.fechaPar)
+        else:
+            self.consome(TOKEN.READLN)
+            self.consome(TOKEN.abrePar)
+            self.consome(TOKEN.id)
+            self.consome(TOKEN.fechaPar)
+
+
 
     #<outputs> -> <out> <restoOutputs>
     def outputs(self):
-        pass
+        self.out()
+        self.restoOutputs()
 
     #<restoOutputs> -> , <out> <restoOutputs> | LAMBDA
     def restoOutputs(self):
-        pass
+        if self.tokenLido[0] == TOKEN.virgula:
+            self.consome(TOKEN.virgula)
+            self.out()
+            self.restoOutputs()
+        else:
+            pass
 
+
+    #PARA O NUM COLOCA UM PRA INTEIRO E UM PRA REAL
     #<out> -> num | id | string
     def out(self):
-        pass
+        if self.tokenLido[0] == TOKEN.numInteger:
+            self.consome(TOKEN.numInteger)
+        elif self.tokenLido[0] == TOKEN.numReal:
+            self.consome(TOKEN.numReal)
+        elif self.tokenLido[0] == TOKEN.id:
+            self.consome(TOKEN.id)
+        else:
+            self.consome(TOKEN.string)

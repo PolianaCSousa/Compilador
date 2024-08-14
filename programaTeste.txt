@@ -1,16 +1,27 @@
-//comentario teste
+//comentario TESTE
+
 program TESTE;
 var
     numeros: array[1..10] of integer;
-var
     a, b, soma, divisao: real;
+
+procedure ExibirMensagem(msg: string);
 begin
-    writeln("entre com a: ");
+    writeln(msg);
+end;
+
+function Multiplicar(x, y: real): real;
+begin
+    Multiplicar := x * y;
+end;
+
+begin
+    writeln("Entre com a: ");
     readln(a);
-    writeln("entre com b: ");
+    writeln("Entre com b: ");
     readln(b);
 
-    soma := a + b * (2 + 5.4);
+    soma := Multiplicar(a, b) + (2 + 5.4);
 
     if soma >= 0 then
         a := 0
@@ -21,5 +32,7 @@ begin
     end;
 
     divisao := a / b;
-    writeln("soma =" , soma);
+    writeln("soma = ", soma);
+
+    ExibirMensagem("Teste do procedimento ExibirMensagem");
 end.

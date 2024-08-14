@@ -45,9 +45,9 @@ class Semantico:
 
     def existe_id(self, identificador):
         if identificador in self.tabelaSimbolos:
-            True
+            return True
         else:
-            False
+            return False
 
     #verifica o que é o identificador que eu passei (se é variavel, funcao, procedimento, etc.)
     def consulta_tipo_id(self,id):
