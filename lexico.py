@@ -250,13 +250,14 @@ class Lexico:
             #estado = 1
             simbolo = self.getchar()
 
-    def testaLexico(self):
-        self.tokenLido = self.getToken()
-        (token, lexema, linha, coluna) = self.tokenLido
-        while token != TOKEN.eof:
-            self.imprimeToken(self.tokenLido)
-            self.tokenLido = self.getToken()
-            (token, lexema, linha, coluna) = self.tokenLido
-
+    '''
+     def testaLexico(self):
+         self.tokenLido = self.getToken()
+         (token, lexema, linha, coluna) = self.tokenLido
+         while token != TOKEN.eof:
+             self.imprimeToken(self.tokenLido)
+             self.tokenLido = self.getToken()
+             (token, lexema, linha, coluna) = self.tokenLido
+     '''
 
 
