@@ -27,9 +27,8 @@ class Tradutor:
 if __name__ == '__main__':
     x = Tradutor('programaTeste.txt')
     x.inicializa()
-    x.traduz()
     #x.sintatico.testaLexico()
-    #x.lexico.testaLexico()
+    x.traduz()
     x.finaliza()
 
 

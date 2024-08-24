@@ -4,8 +4,10 @@ var
 var
   arr: array[1..10] of real;  // Declara um array de reais com 10 elementos }
 
-procedure folder(a : real ; b : real);
 
+procedure folder(a : real ; b : real);
+var
+  a, b, soma, divisao: real;
 begin
    writeln("a = ", a);
    writeln("b = ", b)
@@ -18,7 +20,7 @@ begin
   writeln("entre com b: ");
   readln(b);
   soma := a + b * (2 + 3 / 5.4);
-//aaaaaaaaaaaaaaaa
+      //aaaaaaaaaaaaaaaa
   if soma >= 0 then
     a := 0
   else

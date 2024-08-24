@@ -8,6 +8,14 @@ from semantico import Semantico
     no statement, a gente vai na tabela de simbolos e verifica o tipo do identificador.
 '''
 
+'''
+
+ - Confirmar se entendi o subprogram_head OK
+ - Terminar/confirmar resto_identifier_list OK
+ - Terminar statement
+ - Função declara - precisa arrumar o tipo, pois quando é função ou procedimento, o tipo vai ter só um elemento OK
+'''
+
 class Sintatico:
     def __init__(self, lexico):
         self.lexico = lexico
@@ -134,6 +142,7 @@ class Sintatico:
         self.subprogram_head()
         self.declarations()
         self.compound_statement()
+        self.semantico.saiu_subrotina()
 
     #Aqui, ao ler uma funcao ou procedimento, salva na tabela de simbolos o nome e o token da função ou do procedimento. Porque precisa disso, se cada um tem seu proprio token? preciso salvar todos os identificadores na tabela de símbolos
     #<subprogram_head> -> function id <arguments> : <standard_type> ; | procedure id <arguments> ;
@@ -141,6 +150,7 @@ class Sintatico:
         if self.tokenLido[0] == TOKEN.FUNCTION:
             self.consome(TOKEN.FUNCTION)
             nomeFuncao = [self.tokenLido[1]] #na função declara o tipo (segundo parâmetro da função) deve ser uma lista
+            #self.semantico.entrou_subrotina(nomeFuncao)
             self.consome(TOKEN.id)
             self.semantico.declara(nomeFuncao,TOKEN.FUNCTION)
             self.arguments()
@@ -150,6 +160,7 @@ class Sintatico:
         else:
             self.consome(TOKEN.PROCEDURE)
             nomeProcedimento = [self.tokenLido[1]]
+            #self.semantico.entrou_subrotina(nomeProcedimento)
             self.consome(TOKEN.id)
             self.semantico.declara(nomeProcedimento,TOKEN.PROCEDURE)
             self.arguments()
@@ -171,6 +182,7 @@ class Sintatico:
         self.type()
         self.resto_parameter_list()
 
+    #######################
     #<resto_parameter_list> -> ; <identifier_list> : <type> <resto_parameter_list> | LAMBDA
     def resto_parameter_list(self):
         if self.tokenLido[0] == TOKEN.ptoVirgula:
@@ -216,7 +228,7 @@ class Sintatico:
             nome = self.tokenLido[1]
             if self.semantico.existe_id(nome):
                 tipo = self.semantico.consulta_tipo_id(nome)
-                if tipo in [TOKEN.INTEGER,TOKEN.REAL]:
+                if tipo[0] in [TOKEN.INTEGER,TOKEN.REAL]:
                     self.variable()
                     self.consome(TOKEN.assignop)
                     self.expression()
